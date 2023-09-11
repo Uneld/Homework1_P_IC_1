@@ -97,7 +97,7 @@ def show_note_by_id():
 def show_notes_by_date():
     """
     Запрашивает у пользователя дату, находит все заметки в списке notes, созданные или обновленные в эту дату,
-    и выводит информацию о заметках, если они найдены.
+    и выводит информацию о заметках, если не найдены выдает сообщение.
     """
     while True:
         input_str = input('Введите дату в формате dd-mm-yyyy, q - для выхода: ')
@@ -113,8 +113,6 @@ def show_notes_by_date():
     for note in notes:
         date_create = datetime.datetime.strptime(note['create_date'], '%H:%M:%S %d-%m-%Y').date()
         date_update = datetime.datetime.strptime(note['update_date'], '%H:%M:%S %d-%m-%Y').date()
-        print(date_create)
-        print(date_update)
         if date_create == date_input or date_update == date_input:
             found_notes.append(note)
     if found_notes:
@@ -124,14 +122,35 @@ def show_notes_by_date():
         print(f'\nЗаметки за {date_input} не найдены\n')
 
 
+def show_notes_last_week():
+    """
+    Находит все заметки в списке notes, созданные или обновленные за последнюю неделю и выводит информацию о заметках,
+    если не найдены выдает сообщение
+    """
+    now_date = datetime.datetime.now()
+    past_date = now_date - datetime.timedelta(days=7)
+    found_notes = []
+    for note in notes:
+        date_create = datetime.datetime.strptime(note['create_date'], '%H:%M:%S %d-%m-%Y')
+        date_update = datetime.datetime.strptime(note['update_date'], '%H:%M:%S %d-%m-%Y')
+        if past_date <= date_create <= now_date or past_date <= date_update <= now_date:
+            found_notes.append(note)
+    if found_notes:
+        for note in found_notes:
+            show_note(note)
+    else:
+        print(f'\nЗаметки за последнюю неделю не найдены\n')
+
+
 while flag_work:
     print('1. Добавить заметку')
     print('2. Редактировать заметку')
     print('3. Удалить заметку')
     print('4. Просмотреть заметку по номеру')
     print('5. Просмотреть заметки по дате')
-    print('6. Просмотреть все заметки')
-    print('7. Выход')
+    print('6. Просмотреть заметки за последнюю неделю')
+    print('7. Просмотреть все заметки')
+    print('8. Выход')
 
     choice = input('Введите номер команды: ')
 
@@ -146,8 +165,10 @@ while flag_work:
     elif choice == '5':
         show_notes_by_date()
     elif choice == '6':
-        show_all_notes()
+        show_notes_last_week()
     elif choice == '7':
+        show_all_notes()
+    elif choice == '8':
         flag_work = False
     else:
         print('Неверный номер команды')
