@@ -22,17 +22,34 @@ def add_note():
     notes.append(note)
 
 
+def show_all_notes():
+    """
+    Выводит все заметки в списке notes, если они есть, или сообщение о том, что заметок нет.
+    """
+    if notes:
+        for note in notes:
+            print(f'\n******** Номер: {note["id"]} ********')
+            print(f'Заголовок: {note["title"]}')
+            print(f'{note["note_body"]}')
+            print('****************************\n')
+
+    else:
+        print('Заметок нет')
+
+
 while flag_work:
     print('1. Добавить заметку')
-    print('2. Выход')
+    print('2. Просмотреть все заметки')
+    print('3. Выход')
 
     choice = input('Введите номер команды: ')
 
     if choice == '1':
         add_note()
     elif choice == '2':
+        show_all_notes()
+    elif choice == '3':
         flag_work = False
     else:
         print('Неверный номер команды')
 
-    print(notes)
