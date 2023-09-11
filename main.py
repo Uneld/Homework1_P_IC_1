@@ -1,5 +1,7 @@
 import datetime
+import json
 
+FILE_PATH = 'notes.json'
 notes = []
 flag_work = True
 
@@ -20,6 +22,7 @@ def add_note():
         'update_date': now_date
     }
     notes.append(note)
+    save_notes()
 
 
 def show_note(note):
@@ -59,6 +62,7 @@ def delete_note():
             new_notes.append(note)
     if found_note:
         notes = new_notes
+        save_notes()
     else:
         print(f'\nЗаметка с номером: {note_id} не найдена\n')
 
@@ -77,6 +81,7 @@ def edit_note():
             note['note_title'] = title
             note['note_body'] = body
             note['update_date'] = datetime.datetime.now().strftime('%H:%M:%S %d-%m-%Y')
+            save_notes()
             return
     print(f'\nЗаметка с номером: {note_id} не найдена\n')
 
@@ -140,6 +145,14 @@ def show_notes_last_week():
             show_note(note)
     else:
         print(f'\nЗаметки за последнюю неделю не найдены\n')
+
+
+def save_notes():
+    """
+    Сохраняет заметки из списка notes в файл в формате JSON.
+    """
+    with open(FILE_PATH, 'w') as f:
+        json.dump(notes, f, indent=4)
 
 
 while flag_work:
