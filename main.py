@@ -34,22 +34,36 @@ def show_all_notes():
             print('****************************\n')
 
     else:
+        print('\n****************************')
         print('Заметок нет')
+        print('****************************\n')
+
+
+def delete_note():
+    """
+    Запрашивает у пользователя идентификатор заметки, удаляет заметку из списка notes
+    """
+    note_id = int(input('Введите номер заметки: '))
+    global notes
+    new_notes = [note for note in notes if note['id'] != note_id]
+    notes = new_notes
 
 
 while flag_work:
     print('1. Добавить заметку')
-    print('2. Просмотреть все заметки')
-    print('3. Выход')
+    print('2. Удалить заметку')
+    print('3. Просмотреть все заметки')
+    print('4. Выход')
 
     choice = input('Введите номер команды: ')
 
     if choice == '1':
         add_note()
     elif choice == '2':
-        show_all_notes()
+        delete_note()
     elif choice == '3':
+        show_all_notes()
+    elif choice == '4':
         flag_work = False
     else:
         print('Неверный номер команды')
-
