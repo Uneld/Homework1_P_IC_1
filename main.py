@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 
 FILE_PATH = 'notes.json'
 notes = []
@@ -29,8 +30,7 @@ def show_note(note):
     print(f'\n******** Номер: {note["id"]} ********')
     print(f'Заголовок: {note["note_title"]}')
     print(f'Текст: {note["note_body"]}')
-    print(f'Последнее изменение: {note["update_date"]}')
-    print('****************************\n')
+    print(f'Последнее изменение: {note["update_date"]}\n')
 
 
 def show_all_notes():
@@ -41,9 +41,7 @@ def show_all_notes():
         for note in notes:
             show_note(note)
     else:
-        print('\n****************************')
-        print('Заметок нет')
-        print('****************************\n')
+        print('\n!!! Заметок нет !!!\n')
 
 
 def delete_note():
@@ -64,7 +62,7 @@ def delete_note():
         notes = new_notes
         save_notes()
     else:
-        print(f'\nЗаметка с номером: {note_id} не найдена\n')
+        print(f'\n!!! Заметка с номером: {note_id} не найдена. !!!\n')
 
 
 def edit_note():
@@ -83,7 +81,7 @@ def edit_note():
             note['update_date'] = datetime.datetime.now().strftime('%H:%M:%S %d-%m-%Y')
             save_notes()
             return
-    print(f'\nЗаметка с номером: {note_id} не найдена\n')
+    print(f'\n!!! Заметка с номером: {note_id} не найдена. !!!\n')
 
 
 def show_note_by_id():
@@ -96,7 +94,7 @@ def show_note_by_id():
         if note['id'] == note_id:
             show_note(note)
             return
-    print(f'\nЗаметка с номером: {note_id} не найдена\n')
+    print(f'\n!!! Заметка с номером: {note_id} не найдена. !!!\n')
 
 
 def show_notes_by_date():
@@ -105,26 +103,28 @@ def show_notes_by_date():
     и выводит информацию о заметках, если не найдены выдает сообщение.
     """
     while True:
-        input_str = input('Введите дату в формате dd-mm-yyyy, q - для выхода: ')
+        input_str = input('Введите дату в формате dd-mm-yyyy, q - для выхода: ')  # запрашиваем дату у пользователя
         try:
-            if input_str == 'q':
+            if input_str == 'q':  # q для выхода из цикла ввода если передумали
                 return
-            date_input = datetime.datetime.strptime(input_str, '%d-%m-%Y').date()
+            date_input = datetime.datetime.strptime(input_str, '%d-%m-%Y').date()  # пытаемся распарсить введенную дату
             break
         except ValueError:
-            print('Некорректный формат даты. Попробуйте еще раз.')
+            print('!!! Некорректный формат даты. Попробуйте еще раз. !!!')
 
     found_notes = []
     for note in notes:
+        # берем число месяц год у заметки
         date_create = datetime.datetime.strptime(note['create_date'], '%H:%M:%S %d-%m-%Y').date()
         date_update = datetime.datetime.strptime(note['update_date'], '%H:%M:%S %d-%m-%Y').date()
+        # сравниваем с введенной, если подходит добавляем в новый список
         if date_create == date_input or date_update == date_input:
             found_notes.append(note)
     if found_notes:
         for note in found_notes:
             show_note(note)
     else:
-        print(f'\nЗаметки за {date_input} не найдены\n')
+        print(f'\n!!! Заметки за {date_input} не найдены. !!!\n')
 
 
 def show_notes_last_week():
@@ -132,30 +132,46 @@ def show_notes_last_week():
     Находит все заметки в списке notes, созданные или обновленные за последнюю неделю и выводит информацию о заметках,
     если не найдены выдает сообщение
     """
-    now_date = datetime.datetime.now()
-    past_date = now_date - datetime.timedelta(days=7)
+    now_date = datetime.datetime.now()  # получаем текущую дату
+    past_date = now_date - datetime.timedelta(days=7)  # получаем дату на 7 дней назад
     found_notes = []
     for note in notes:
+        # берем число месяц год у заметки
         date_create = datetime.datetime.strptime(note['create_date'], '%H:%M:%S %d-%m-%Y')
         date_update = datetime.datetime.strptime(note['update_date'], '%H:%M:%S %d-%m-%Y')
+        # проверяем входит ли дата заметки в диапазон недели, если входит добавляем в новый список
         if past_date <= date_create <= now_date or past_date <= date_update <= now_date:
             found_notes.append(note)
     if found_notes:
         for note in found_notes:
             show_note(note)
     else:
-        print(f'\nЗаметки за последнюю неделю не найдены\n')
+        print('\n!! Заметки за последнюю неделю не найдены. !!!\n')
 
 
 def save_notes():
     """
     Сохраняет заметки из списка notes в файл в формате JSON.
     """
-    with open(FILE_PATH, 'w') as f:
-        json.dump(notes, f, indent=4)
+    with open(FILE_PATH, 'w') as file:
+        # записываем список notes в файл в формате JSON с отступом в 4 пробела.
+        json.dump(notes, file, indent=4)
 
 
-while flag_work:
+def load_notes():
+    """
+    Загружает заметки из файла в формате JSON в глобальный список notes.
+    Если файл не найден, список notes остается пустым.
+    """
+    if os.path.isfile(FILE_PATH): # проверяем есть ли файл, и если есть загружаем в наш список
+        with open(FILE_PATH, 'r') as file:
+            notes.extend(json.load(file))
+    else:
+        print('!!! Невозможно загрузить данные. Файл отсутвует. !!!')
+
+
+load_notes()  # подгружаем заметки из файла
+while flag_work: # попадаем в основное меню программы
     print('1. Добавить заметку')
     print('2. Редактировать заметку')
     print('3. Удалить заметку')
