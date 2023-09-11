@@ -12,7 +12,6 @@ def add_note():
     title = input('Введите заголовок заметки: ')
     note_body = input('Введите текст заметки: ')
     now_date = datetime.datetime.now().strftime('%H:%M:%S %d-%m-%Y')
-    print(now_date)
     note = {
         'id': len(notes) + 1,
         'note_title': title,
@@ -23,18 +22,21 @@ def add_note():
     notes.append(note)
 
 
+def show_note(note):
+    print(f'\n******** Номер: {note["id"]} ********')
+    print(f'Заголовок: {note["note_title"]}')
+    print(f'Текст: {note["note_body"]}')
+    print(f'Последнее изменение: {note["update_date"]}')
+    print('****************************\n')
+
+
 def show_all_notes():
     """
     Выводит все заметки в списке notes, если они есть, или сообщение о том, что заметок нет.
     """
     if notes:
         for note in notes:
-            print(f'\n******** Номер: {note["id"]} ********')
-            print(f'Заголовок: {note["note_title"]}')
-            print(f'{note["note_body"]}')
-            print(f'Последнее изменение: {note["update_date"]}')
-            print('****************************\n')
-
+            show_note(note)
     else:
         print('\n****************************')
         print('Заметок нет')
@@ -79,12 +81,57 @@ def edit_note():
     print(f'\nЗаметка с номером: {note_id} не найдена\n')
 
 
+def show_note_by_id():
+    """
+       Запрашивает у пользователя идентификатор заметки, находит заметку в списке notes
+       и выводит информацию о заметке, если она найдена.
+       """
+    note_id = int(input('Введите номер заметки: '))
+    for note in notes:
+        if note['id'] == note_id:
+            show_note(note)
+            return
+    print(f'\nЗаметка с номером: {note_id} не найдена\n')
+
+
+def show_notes_by_date():
+    """
+    Запрашивает у пользователя дату, находит все заметки в списке notes, созданные или обновленные в эту дату,
+    и выводит информацию о заметках, если они найдены.
+    """
+    while True:
+        input_str = input('Введите дату в формате dd-mm-yyyy, q - для выхода: ')
+        try:
+            if input_str == 'q':
+                return
+            date_input = datetime.datetime.strptime(input_str, '%d-%m-%Y').date()
+            break
+        except ValueError:
+            print('Некорректный формат даты. Попробуйте еще раз.')
+
+    found_notes = []
+    for note in notes:
+        date_create = datetime.datetime.strptime(note['create_date'], '%H:%M:%S %d-%m-%Y').date()
+        date_update = datetime.datetime.strptime(note['update_date'], '%H:%M:%S %d-%m-%Y').date()
+        print(date_create)
+        print(date_update)
+        if date_create == date_input or date_update == date_input:
+            found_notes.append(note)
+    if found_notes:
+        for note in found_notes:
+            show_note(note)
+    else:
+        print(f'\nЗаметки за {date_input} не найдены\n')
+
+
 while flag_work:
     print('1. Добавить заметку')
     print('2. Редактировать заметку')
     print('3. Удалить заметку')
-    print('4. Просмотреть все заметки')
-    print('5. Выход')
+    print('4. Просмотреть заметку по номеру')
+    print('5. Просмотреть заметки по дате')
+    print('6. Просмотреть все заметки')
+    print('7. Выход')
 
     choice = input('Введите номер команды: ')
 
@@ -95,8 +142,12 @@ while flag_work:
     elif choice == '3':
         delete_note()
     elif choice == '4':
-        show_all_notes()
+        show_note_by_id()
     elif choice == '5':
+        show_notes_by_date()
+    elif choice == '6':
+        show_all_notes()
+    elif choice == '7':
         flag_work = False
     else:
         print('Неверный номер команды')
